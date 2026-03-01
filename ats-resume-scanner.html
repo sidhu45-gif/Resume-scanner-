@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI - ATS Scanner & Optimizer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <path d="M4 4H28V28H4V4Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M8 12H24M8 16H24M8 20H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>ResumeAI</span>
+            </div>
+            <div class="nav-links">
+                <a href="#scanner" class="nav-link active">Scanner</a>
+                <a href="#templates" class="nav-link">Templates</a>
+                <a href="#tools" class="nav-link">Tools</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">⚡</span>
+                <span>AI-Powered Resume Analysis</span>
+            </div>
+            <h1 class="hero-title">
+                Beat the ATS,<br/>
+                <span class="gradient-text">Land Your Dream Job</span>
+            </h1>
+            <p class="hero-subtitle">
+                Upload your resume and get instant ATS score, detailed feedback,<br/>
+                and AI-powered suggestions to optimize for any job description
+            </p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Resumes Scanned</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">4.9/5</div>
+                    <div class="stat-label">User Rating</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-card card-1">
+                <div class="card-icon">✓</div>
+                <div class="card-text">ATS Score: 94%</div>
+            </div>
+            <div class="floating-card card-2">
+                <div class="card-icon">📊</div>
+                <div class="card-text">15 Issues Found</div>
+            </div>
+            <div class="floating-card card-3">
+                <div class="card-icon">🎯</div>
+                <div class="card-text">Match: 87%</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Scanner Section -->
+    <section class="scanner-section" id="scanner">
+        <div class="container">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx" hidden>
+                <div class="upload-content">
+                    <div class="upload-icon">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                            <path d="M32 16V48M16 32H48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <rect x="8" y="8" width="48" height="48" rx="8" stroke="currentColor" stroke-width="3"/>
+                        </svg>
+                    </div>
+                    <h3>Upload Your Resume</h3>
+                    <p>Drag & drop your resume here or click to browse</p>
+                    <p class="upload-formats">Supports PDF, DOC, DOCX (Max 5MB)</p>
+                    <button class="btn btn-primary" onclick="document.getElementById('resumeUpload').click()">
+                        Choose File
+                    </button>
+                </div>
+                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">Analyzing resume...</p>
+                </div>
+            </div>
+
+            <!-- Job Description Input -->
+            <div class="job-description-section" id="jobDescSection" style="display: none;">
+                <h3>Paste Job Description (Optional)</h3>
+                <p class="section-subtitle">Get personalized suggestions to match your resume with the job requirements</p>
+                <textarea id="jobDescription" placeholder="Paste the job description here to get tailored recommendations..."></textarea>
+                <button class="btn btn-primary" onclick="analyzeWithJob()">Analyze Match</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section" id="resultsSection" style="display: none;">
+        <div class="container">
+            <div class="results-header">
+                <h2>Analysis Results</h2>
+                <div class="results-actions">
+                    <button class="btn btn-secondary" onclick="downloadReport()">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 13L6 9H14L10 13ZM10 3V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 16H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Download Report
+                    </button>
+                    <button class="btn btn-outline" onclick="resetScanner()">Upload New Resume</button>
+                </div>
+            </div>
+
+            <!-- ATS Score Card -->
+            <div class="score-card">
+                <div class="score-visual">
+                    <div class="score-circle" id="scoreCircle">
+                        <svg class="score-svg" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="85" fill="none" stroke="#e5e7eb" stroke-width="16"/>
+                            <circle id="scoreProgress" cx="100" cy="100" r="85" fill="none" stroke="url(#scoreGradient)" stroke-width="16" stroke-linecap="round" transform="rotate(-90 100 100)"/>
+                            <defs>
+                                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#06b6d4"/>
+                                    <stop offset="100%" style="stop-color:#3b82f6"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="score-number" id="scoreNumber">0</div>
+                    </div>
+                </div>
+                <div class="score-details">
+                    <h3>ATS Compatibility Score</h3>
+                    <p class="score-description" id="scoreDescription">Analyzing your resume...</p>
+                    <div class="score-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Format & Structure</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" id="formatScore" style="width: 0%"></div>
+                            </div>
+                            <span class="breakdown-value" id="formatValue">0%</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Keywords & Content</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" id="keywordsScore" style="width: 0%"></div>
+                            </div>
+                            <span class="breakdown-value" id="keywordsValue">0%</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Experience & Skills</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" id="experienceScore" style="width: 0%"></div>
+                            </div>
+                            <span class="breakdown-value" id="experienceValue">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('issues')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 6V10M10 14H10.01M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Issues & Corrections
+                </button>
+                <button class="tab" onclick="switchTab('keywords')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M7 7H13M7 11H13M7 15H10M4 1H16C17.1046 1 18 1.89543 18 3V17C18 18.1046 17.1046 19 16 19H4C2.89543 19 2 18.1046 2 17V3C2 1.89543 2.89543 1 4 1Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Keywords Analysis
+                </button>
+                <button class="tab" onclick="switchTab('suggestions')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    AI Suggestions
+                </button>
+                <button class="tab" onclick="switchTab('preview')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Resume Preview
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Issues Tab -->
+                <div id="issuesTab" class="tab-pane active">
+                    <div class="issues-grid" id="issuesList">
+                        <!-- Issues will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Keywords Tab -->
+                <div id="keywordsTab" class="tab-pane">
+                    <div class="keywords-section">
+                        <div class="keywords-found">
+                            <h3>Found Keywords</h3>
+                            <div class="keyword-tags" id="foundKeywords"></div>
+                        </div>
+                        <div class="keywords-missing">
+                            <h3>Missing Important Keywords</h3>
+                            <div class="keyword-tags missing" id="missingKeywords"></div>
+                        </div>
+                        <div class="keywords-suggestions">
+                            <h3>Recommended Keywords for Your Industry</h3>
+                            <div class="keyword-tags recommended" id="recommendedKeywords"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suggestions Tab -->
+                <div id="suggestionsTab" class="tab-pane">
+                    <div class="suggestions-list" id="suggestionsList">
+                        <!-- AI Suggestions will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Preview Tab -->
+                <div id="previewTab" class="tab-pane">
+                    <div class="preview-container">
+                        <div class="preview-toolbar">
+                            <button class="btn btn-secondary" onclick="zoomOut()">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M4 8H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                            <span id="zoomLevel">100%</span>
+                            <button class="btn btn-secondary" onclick="zoomIn()">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M8 4V12M4 8H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="resume-preview" id="resumePreview">
+                            <div class="preview-placeholder">
+                                <p>Resume preview will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Templates Section -->
+    <section class="templates-section" id="templates">
+        <div class="container">
+            <div class="section-header">
+                <h2>ATS-Optimized Resume Templates</h2>
+                <p>Choose from our professionally designed templates that pass ATS systems</p>
+            </div>
+            <div class="templates-filter">
+                <button class="filter-btn active" onclick="filterTemplates('all')">All Templates</button>
+                <button class="filter-btn" onclick="filterTemplates('modern')">Modern</button>
+                <button class="filter-btn" onclick="filterTemplates('professional')">Professional</button>
+                <button class="filter-btn" onclick="filterTemplates('creative')">Creative</button>
+                <button class="filter-btn" onclick="filterTemplates('minimal')">Minimal</button>
+            </div>
+            <div class="templates-grid" id="templatesGrid">
+                <!-- Template Cards will be populated here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools-section" id="tools">
+        <div class="container">
+            <div class="section-header">
+                <h2>Additional Resume Tools</h2>
+                <p>Powerful features to enhance your job application</p>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <div class="tool-icon">📝</div>
+                    <h3>Cover Letter Generator</h3>
+                    <p>Create compelling cover letters tailored to each job application using AI</p>
+                    <button class="btn btn-outline">Try Now</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">🔍</div>
+                    <h3>Keyword Optimizer</h3>
+                    <p>Find and optimize keywords from job descriptions to improve your ATS score</p>
+                    <button class="btn btn-outline">Try Now</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">📊</div>
+                    <h3>LinkedIn Profile Sync</h3>
+                    <p>Sync your resume with your LinkedIn profile for consistency</p>
+                    <button class="btn btn-outline">Try Now</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">✨</div>
+                    <h3>Resume Beautifier</h3>
+                    <p>Enhance your resume format and design while maintaining ATS compatibility</p>
+                    <button class="btn btn-outline">Try Now</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">🎯</div>
+                    <h3>Skills Gap Analysis</h3>
+                    <p>Identify missing skills and get recommendations for your target role</p>
+                    <button class="btn btn-outline">Try Now</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">💼</div>
+                    <h3>Job Match Finder</h3>
+                    <p>Get job recommendations based on your resume and preferences</p>
+                    <button class="btn btn-outline">Try Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Analysis</h3>
+                    <p>Get your ATS score and detailed feedback in seconds</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered</h3>
+                    <p>Advanced AI algorithms trained on millions of resumes</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Job Matching</h3>
+                    <p>Optimize your resume for specific job descriptions</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your data is encrypted and never shared</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M4 4H28V28H4V4Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M8 12H24M8 16H24M8 20H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>ResumeAI</span>
+                    </div>
+                    <p>Helping job seekers land their dream roles with AI-powered resume optimization.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <a href="#scanner">ATS Scanner</a>
+                        <a href="#templates">Templates</a>
+                        <a href="#tools">Tools</a>
+                        <a href="#pricing">Pricing</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="#">Blog</a>
+                        <a href="#">Resume Tips</a>
+                        <a href="#">Career Guides</a>
+                        <a href="#">Help Center</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <a href="#">About Us</a>
+                        <a href="#">Contact</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Pottabathini Sidhu. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
